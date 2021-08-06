@@ -1,3 +1,4 @@
+# reciever app config
 file(
     GLOB
     RECIEVER
@@ -13,9 +14,11 @@ add_executable(
 target_link_libraries(
     piStatReciever
     PUBLIC
+    Networking
 )
-
-target_link_directories(
+    
+target_include_directories(
     piStatReciever
     PUBLIC
+    "${Networking_DIR}/"
 )

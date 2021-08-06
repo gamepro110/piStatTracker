@@ -1,3 +1,4 @@
+# sender app config
 file(
     GLOB
     SENDER_SRC
@@ -13,9 +14,11 @@ add_executable(
 target_link_libraries(
     piStatSender
     PUBLIC
+    Networking
 )
 
-target_link_directories(
+target_include_directories(
     piStatSender
     PUBLIC
+    "${Networking_DIR}/"
 )

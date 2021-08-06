@@ -1,0 +1,102 @@
+#include "Networking/net.h"
+
+#include <iostream>
+
+class CustomServer : public net::server_interface<net::MessageType>
+{
+public:
+	CustomServer(uint16_t port) :
+		net::server_interface<net::MessageType>(port)
+	{
+	}
+
+protected:
+	virtual bool OnClientConnect(std::shared_ptr<net::connection<net::MessageType>> client)
+	{
+		net::message<net::MessageType> msg;
+		msg.header.id = net::MessageType::ServerAccept;
+		client->SendMsg(msg);
+		return true;
+	}
+
+	// called when a client appears to have disconnected
+	virtual void OnClientDisconnect(std::shared_ptr<net::connection<net::MessageType>> client)
+	{
+		std::cout << "Removing Client [" << client->GetID() << "]\n";
+	}
+
+	virtual void OnMessage(std::shared_ptr<net::connection<net::MessageType>> client, net::message<net::MessageType>& msg)
+	{
+		switch (msg.header.id)
+		{
+		case net::MessageType::ServerPing:
+		{
+			std::cout << "[" << client->GetID() << "]: ServerPing\n";
+			// simply bounce message back to client
+			client->SendMsg(msg);
+
+			break;
+		}
+
+		case net::MessageType::MessageAll:
+		{
+			std::cout << "[" << client->GetID() << "]: Message All\n";
+
+			net::message<net::MessageType> _Msg{};
+			_Msg.header.id = net::MessageType::ServerMessage;
+			_Msg << client->GetID();
+			MessageAllClients(_Msg, client);
+
+			break;
+		}
+
+		case net::MessageType::TestMessage:
+		{
+			uint32_t recieved{};
+			msg >> recieved;
+
+			std::cout << "recieved: " << recieved << std::endl;
+			uint32_t sending{ recieved + 20 };
+			msg << sending;
+			client->SendMsg(msg);
+
+			break;
+		}
+
+		case net::MessageType::SendCmd:
+		{
+			std::string cmd{};
+			net::MsgStringUnwrapper(msg, cmd);
+
+			uint32_t result{};
+			std::cout << cmd << std::endl;
+			result = system(cmd.c_str());
+
+			msg << result;
+			client->SendMsg(msg);
+
+			break;
+		}
+
+		default:
+		{
+			break;
+		}
+		}
+	}
+};
+
+int main()
+{
+	CustomServer server{ 60000 };
+
+	if (server.Start())
+	{
+		while (1)
+		{
+			server.Update(-1, true);
+		}
+	}
+	system("pause");
+	return 0;
+}

@@ -1,0 +1,284 @@
+#include "Networking/net.h"
+
+#include "GLFW/glfw3.h"
+
+#include <iostream>
+#include <map>
+#include <functional>
+
+class SimpleClient;
+
+using CallbackFn = std::function<void(SimpleClient*)>;
+
+struct WindowData
+{
+	int width{ 200 }, height{ 200 };
+	std::string name{ "input..." };
+	std::map<char, CallbackFn> Callbacks{};
+
+	/// <summary>regestering callback used by the input window</summary>
+	/// <param name="id">key on the keyboard u want to bind</param>
+	/// <param name="cbfn">CallbackFn to bind ( use std::bind( CallbackFn ) )</param>
+	void addCallback(char id, CallbackFn cbfn)
+	{
+		Callbacks.emplace(id, cbfn);
+	}
+};
+
+class SimpleClient : public net::client_interface<net::MessageType>
+{
+public:
+	~SimpleClient()
+	{
+		glfwTerminate();
+	}
+
+public:
+	void ServerPing()
+	{
+		net::message<net::MessageType> msg;
+		msg.header.id = net::MessageType::ServerPing;
+
+		std::chrono::system_clock::time_point timeNow = std::chrono::system_clock::now();
+
+		msg << timeNow;
+		SendMsg(msg);
+	}
+
+	void SendAll()
+	{
+		net::message<net::MessageType> msg;
+		msg.header.id = net::MessageType::MessageAll;
+		SendMsg(msg);
+	}
+
+	void TestMessage()
+	{
+		net::message<net::MessageType> msg;
+		msg.header.id = net::MessageType::TestMessage;
+		uint32_t num{ 50 };
+		msg << num;
+
+		SendMsg(msg);
+	}
+
+	void SendCmd(const std::string cmd)
+	{
+		net::message<net::MessageType> msg;
+		msg.header.id = net::MessageType::SendCmd;
+
+		net::MsgStringWrapper(msg, cmd);
+
+		SendMsg(msg);
+	}
+
+public: // glfw
+
+	static WindowData* DataInstance;
+	static SimpleClient* Instance;
+
+	// initialize the glfw window for crossplatfrom input
+	bool Init()
+	{
+		glfwSetErrorCallback(OnGLFWErrorCallback);
+
+		if (!glfwInit()) return false;
+
+		window = glfwCreateWindow(m_data.width, m_data.height, m_data.name.c_str(), NULL, NULL);
+
+		if (!window) return false;
+
+		glfwMakeContextCurrent(window);
+		glfwSetKeyCallback(window, OnKeyCallback);
+		glfwSetWindowCloseCallback(window, OnWindowCloseCallback);
+		glfwSwapInterval(1);
+
+		return true;
+	}
+
+	void Updateglfw()
+	{
+		glfwPollEvents();
+	}
+
+	static void OnKeyCallback(GLFWwindow* window, int key, int scanCode, int action, int mods)
+	{
+		SimpleClient* cli = SimpleClient::Instance;
+		WindowData* data = cli->DataInstance;
+
+		switch (action)
+		{
+		case GLFW_PRESS:
+		{
+			char _keyPressed = (char)key;
+			auto& func = data->Callbacks[_keyPressed];
+
+			if (func != NULL)
+			{
+				func(SimpleClient::Instance);
+			}
+			break;
+		}
+		default:
+			break;
+		}
+	}
+
+	/// <summary>callback for glfw when an error occurs</summary>
+	/// <param name="error">int value of the occured error</param>
+	/// <param name="description">string interputation of the error code</param>
+	static void OnGLFWErrorCallback(int error, const char* description)
+	{
+		std::cout << "[GLFW] (" << error << ")\n{\n\t" << description << "\n}" << std::endl;
+	}
+
+	static void OnWindowCloseCallback(GLFWwindow* window)
+	{
+		Instance->Disconnect();
+		std::cout << "should close returned: " << (bool)glfwWindowShouldClose(window) << std::endl;
+		Instance->bQuit = true;
+	}
+
+	bool& getQuit()
+	{
+		return bQuit;
+	}
+
+	void Shutdown()
+	{
+		OnWindowCloseCallback(window);
+	}
+
+	WindowData& GetData()
+	{
+		return m_data;
+	}
+
+private:
+	GLFWwindow* window{ NULL };
+	bool bQuit = false;
+
+	WindowData m_data;
+};
+
+SimpleClient* SimpleClient::Instance = NULL;
+WindowData* SimpleClient::DataInstance = NULL;
+
+// prepair keybinds
+CallbackFn cping(SimpleClient* c) { c->ServerPing();  return 0; }
+CallbackFn cmsgall(SimpleClient* c) { c->SendAll();   return 0; }
+CallbackFn ctest(SimpleClient* c) { c->TestMessage(); return 0; }
+CallbackFn cCMD1(SimpleClient* c) { c->SendCmd("python circle.py '255,0,0' '0,0,255'"); return 0; }
+CallbackFn cCMD2(SimpleClient* c) { c->SendCmd("python circle.py '255,150,0' '0,255,0'"); return 0; }
+CallbackFn cquit(SimpleClient* c) { c->Shutdown(); return 0; }
+
+int main()
+{
+	std::cout << "[CLIENT]: Started" << std::endl;
+	SimpleClient c;
+
+	SimpleClient::Instance = &c;
+	SimpleClient::DataInstance = &c.GetData();
+
+	bool& bQuit = c.getQuit();
+
+	// set keybinds
+	c.GetData().addCallback('1', std::bind(cping, &c));
+	c.GetData().addCallback('2', std::bind(cmsgall, &c));
+	c.GetData().addCallback('3', std::bind(ctest, &c));
+	c.GetData().addCallback('4', std::bind(cCMD1, &c));
+	c.GetData().addCallback('5', std::bind(cCMD2, &c));
+	c.GetData().addCallback('0', std::bind(cquit, &c));
+
+	c.Connect("127.0.0.1", 60000);
+	c.Init();
+
+	std::cout << "CMD`s\n"
+		<< "0: quit application\n"
+		<< "1: ping\n"
+		<< "2: send hello to other clients\n"
+		<< "3: send test msg containing int value of 50, server adds 20 and sends it back\n"
+		<< "4: send custom cmd 'python circle.py '255,0,0' '0,0,255'"
+		<< "5: send custom cmd 'python circle.py '255,150,0' '0,255,0'"
+		<< std::endl;
+
+	while (!bQuit)
+	{
+		// connected check
+		if (c.IsConnected())
+		{
+			// incomming queue is not empty
+			if (!c.Incomming().empty())
+			{
+				net::message<net::MessageType> msg = c.Incomming().pop_front().msg;
+
+				switch (msg.header.id)
+				{
+				case net::MessageType::ServerAccept:
+				{
+					std::cout << "Server accepted connection\n";
+					break;
+				}
+
+				case net::MessageType::ServerPing:
+				{
+					std::chrono::system_clock::time_point timeNow = std::chrono::system_clock::now();
+					std::chrono::system_clock::time_point timeThen;
+					msg >> timeThen;
+					std::cout << "Ping: " << std::chrono::duration<double>(timeNow - timeThen).count() << "\n";
+					break;
+				}
+
+				case net::MessageType::ServerMessage:
+				{
+					uint32_t clientID;
+					msg >> clientID;
+					std::cout << "Hello from [" << clientID << "]\n";
+					break;
+				}
+
+				case net::MessageType::TestMessage:
+				{
+					uint32_t recievedNum{};
+					msg >> recievedNum;
+					std::cout << "Recieved TestMessage: " << recievedNum << std::endl;
+					break;
+				}
+
+				case net::MessageType::SendCmd:
+				{
+					// recieving results
+					uint32_t recievedResult{};
+					msg >> recievedResult;
+
+					std::string txt{};
+
+					if (recievedResult == 0)
+					{
+						txt = "success";
+					}
+					else
+					{
+						txt = "something went wrong";
+					}
+
+					std::cout << "recieved result: " << txt << std::endl;
+					break;
+				}
+
+				default:
+					break;
+				}
+			}
+
+			c.Updateglfw();
+		}
+		else
+		{
+			std::cout << "Server Down\n";
+			bQuit = true;
+		}
+	}
+
+	return 0;
+}
