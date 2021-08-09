@@ -8,8 +8,10 @@ public:
 	~StatReciever()
 	{}
 
-    bool operator==(const StatReciever& other) {
-        if (this->thrContext.get_id() == other.thrContext.get_id()) {
+    bool operator==(const StatReciever& other)
+	{
+        if (this->m_connection->GetID() == other.m_connection->GetID())
+		{
             return true;
         }
         return false;

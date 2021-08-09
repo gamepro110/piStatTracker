@@ -18,6 +18,9 @@ jobs:
     steps:
     - name: cloning repo
       uses: actions/checkout@v2
+
+    - name: pulling submodules
+      run: git submodule update --init --recursive
     
     - name: Get latest CMake and ninja
       uses: lukka/get-cmake@latest
