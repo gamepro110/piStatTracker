@@ -1,0 +1,22 @@
+# Format Style Options - Created with Clang Power Tools
+---
+BasedOnStyle: Microsoft
+BraceWrapping: 
+  AfterCaseLabel: true
+BreakConstructorInitializersBeforeComma: true
+BreakStringLiterals: false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+DerivePointerAlignment: true
+IndentCaseLabels: true
+IndentCaseBlocks: true
+IndentWrappedFunctionNames: true
+NamespaceIndentation: All
+ObjCSpaceAfterProperty: true
+PointerAlignment: Left
+ReflowComments: false
+SortIncludes: false
+SortUsingDeclarations: false
+SpaceAfterTemplateKeyword: false
+SpaceAroundPointerQualifiers: After
+SpacesBeforeTrailingComments: 2
+...

@@ -1,6 +1,9 @@
 #pragma once
 #include "Networking/net.h"
+
+#include <ncurses.h>
 #include <iostream>
+#include <algorithm>
 
 class StatReciever : public net::client_interface<net::MessageType>
 {
@@ -8,14 +11,7 @@ public:
 	~StatReciever()
 	{}
 
-    bool operator==(const StatReciever& other)
-	{
-        if (this->m_connection->GetID() == other.m_connection->GetID())
-		{
-            return true;
-        }
-        return false;
-    }
+	constexpr bool operator==(const StatReciever&) const = default;
 
 public:
 	void ServerPing()

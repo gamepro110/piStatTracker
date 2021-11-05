@@ -15,6 +15,7 @@ namespace net
 		ServerAccept,
 		ServerDeny,
 		ServerPing,
+		ServerSendStats,
 	};
 
 	/// <summary>preps string to be inserted into the message.</summary>

@@ -1,5 +1,8 @@
 #include "main.h"
 
+int lastKey = -1;
+void HandleInput();
+
 int main() {
     std::vector<StatReciever> recievers;
 
@@ -18,6 +21,12 @@ int main() {
             return 1;
         }
     }
+
+    //ncurses init
+    initscr();
+    // log window
+    // connections window
+    // avg stat window
 
     while (true)
     {
@@ -38,14 +47,7 @@ int main() {
                     case net::MessageType::ServerDeny:
                     {
                         std::cout << "[Sender] Connection Denied";
-                        std::vector<StatReciever>::iterator it;
-                        for (it = recievers.begin(); it != recievers.end(); it++) {
-                            if (*it == item) {
-                                recievers.erase(it);
-                                break;
-                            }
-                        } // TODO recheck logic
-
+                        //recievers.erase(std::remove(recievers.begin(), recievers.end(), item), recievers.end());
                         break;
                     }
                     case net::MessageType::ServerPing:
@@ -57,7 +59,27 @@ int main() {
                 }
             }
         }
+
+        HandleInput();
+        refresh();
     }
+
+    endwin();
     
     return 0;
+}
+
+void HandleInput()
+{
+    int input = getch();
+    lastKey = input == -1 ? lastKey : input;
+
+    switch (input)
+    {
+    case 27: // ESC key
+        break;
+
+    default:
+        break;
+    }
 }

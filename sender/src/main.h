@@ -37,10 +37,17 @@ protected:
 
 			break;
 		}
+        case net:MessageType::ServerSendStats:
+            {
+                net::message message;
+                size_t coreCount = std::thread::hardware_concurency();
+                
+				message << coreCount;
+                client->SendMsg(message);
+            }
 
 		default:
 			break;
-
 		}
 	}
 };
