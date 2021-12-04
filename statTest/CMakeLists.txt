@@ -10,3 +10,5 @@ add_executable(
 	statTest
 	"${STATTEST_SRC}"
 )
+
+# Rework this into a cleaned up library

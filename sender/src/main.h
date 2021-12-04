@@ -3,51 +3,56 @@
 #include "Networking/net.h"
 
 #include <iostream>
+#include <thread>
 
-class StatSender : public net::server_interface<net::MessageType> {
-public:
-    StatSender(uint16_t port) :
-        net::server_interface<net::MessageType>(port)
-    {}
+class StatSender : public net::server_interface<net::MessageType>
+{
+  public:
+    StatSender(uint16_t port) : net::server_interface<net::MessageType>(port)
+    {
+    }
 
-protected:
+  protected:
     virtual bool OnClientConnect(std::shared_ptr<net::connection<net::MessageType>> client)
-	{
-		net::message<net::MessageType> msg;
-		msg.header.id = net::MessageType::ServerAccept;
-		client->SendMsg(msg);
-		return true;
-	}
+    {
+        net::message<net::MessageType> msg;
+        msg.header.id = net::MessageType::ServerAccept;
+        client->SendMsg(msg);
+        return true;
+    }
 
-	// called when a client appears to have disconnected
-	virtual void OnClientDisconnect(std::shared_ptr<net::connection<net::MessageType>> client)
-	{
-		std::cout << "Removing Client [" << client->GetID() << "]\n";
-	}
+    // called when a client appears to have disconnected
+    virtual void OnClientDisconnect(std::shared_ptr<net::connection<net::MessageType>> client)
+    {
+        std::cout << "Removing Client [" << client->GetID() << "]\n";
+    }
 
-	virtual void OnMessage(std::shared_ptr<net::connection<net::MessageType>> client, net::message<net::MessageType>& msg)
-	{
-		switch (msg.header.id)
-		{
-		case net::MessageType::ServerPing:
-		{
-			std::cout << "[" << client->GetID() << "]: ServerPing\n";
-			// simply bounce message back to client
-			client->SendMsg(msg);
+    virtual void OnMessage(std::shared_ptr<net::connection<net::MessageType>> client,
+                           net::message<net::MessageType>& msg)
+    {
+        net::message<net::MessageType> message;
 
-			break;
-		}
-        case net:MessageType::ServerSendStats:
-            {
-                net::message message;
-                size_t coreCount = std::thread::hardware_concurency();
-                
-				message << coreCount;
-                client->SendMsg(message);
-            }
+        switch (msg.header.id)
+        {
+            case net::MessageType::ServerPing:
+                {
+                    std::cout << "[" << client->GetID() << "]: ServerPing\n";
+                    // simply bounce message back to client
+                    client->SendMsg(msg);
 
-		default:
-			break;
-		}
-	}
+                    break;
+                }
+            case net::MessageType::ServerSendStats:
+                {
+                    message << std::thread::hardware_concurrency();
+
+                    client->SendMsg(message);
+                    break;
+                }
+            default:
+                {
+                    break;
+                }
+        }
+    }
 };
