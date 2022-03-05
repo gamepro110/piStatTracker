@@ -11,6 +11,15 @@ add_executable(
     "${RECIEVER_SRC}"
 )
 
+set_target_properties(
+    piStatReciever
+    PROPERTIES
+    VERSION 0.1
+    POSITION_INDEPENDENT_CODE ON
+    CXX_STANDARD 20
+    FOLDER "Pi Stat Tracker"
+)
+
 target_link_libraries(
     piStatReciever
     PUBLIC
@@ -22,5 +31,4 @@ target_include_directories(
     piStatReciever
     PUBLIC
     "${Networking_DIR}/"
-    "${CURSES_INCLUDE_DIRS}"
 )

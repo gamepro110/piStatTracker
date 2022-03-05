@@ -11,6 +11,15 @@ add_executable(
     "${SENDER_SRC}"
 )
 
+set_target_properties(
+    piStatSender
+    PROPERTIES
+    VERSION 0.1
+    POSITION_INDEPENDENT_CODE ON
+    CXX_STANDARD 20
+    FOLDER "Pi Stat Tracker"
+)
+
 target_link_libraries(
     piStatSender
     PUBLIC

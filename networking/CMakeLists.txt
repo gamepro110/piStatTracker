@@ -12,6 +12,14 @@ add_library(
     "${Networking_SRC}"
 )
 
+set_target_properties(
+    Networking
+    PROPERTIES
+    VERSION 0.1
+    CXX_STANDARD 20
+    FOLDER "NetLib"
+)
+
 target_link_libraries(
     Networking
     PUBLIC

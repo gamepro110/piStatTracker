@@ -1,7 +1,6 @@
 #pragma once
 #include "Networking/net.h"
 
-#include <ncurses.h>
 #include <iostream>
 #include <algorithm>
 
@@ -11,7 +10,7 @@ public:
 	~StatReciever()
 	{}
 
-	constexpr bool operator==(const StatReciever&) const = default;
+	auto operator<=>(const StatReciever& rhs) const = default;
 
 public:
 	void ServerPing()

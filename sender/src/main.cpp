@@ -7,7 +7,7 @@ int main() {
 
     if (sender.Start()) {
         while (1) {
-            sender.Update(-1,true);
+            sender.Update(2,true);
         }
     }
     else {

@@ -1,14 +1,12 @@
 #include "main.h"
 
-int lastKey = -1;
-void HandleInput();
-
 int main() {
     std::vector<StatReciever> recievers;
+    const std::string ipAddr{""};
 
     for (auto& item : recievers)
     {
-        if(!item.Connect("", 5999)) // connect to all recievers
+        if (!item.Connect(ipAddr, 5999))  // connect to all recievers
         {
             for (auto& it : recievers) // disconnet from all connected recievers if one failed
             {
@@ -22,8 +20,6 @@ int main() {
         }
     }
 
-    //ncurses init
-    initscr();
     // log window
     // connections window
     // avg stat window
@@ -60,26 +56,7 @@ int main() {
             }
         }
 
-        HandleInput();
-        refresh();
     }
-
-    endwin();
     
     return 0;
-}
-
-void HandleInput()
-{
-    int input = getch();
-    lastKey = input == -1 ? lastKey : input;
-
-    switch (input)
-    {
-    case 27: // ESC key
-        break;
-
-    default:
-        break;
-    }
 }

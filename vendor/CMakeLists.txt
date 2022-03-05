@@ -16,6 +16,9 @@ add_library(
 set_target_properties(
     Asio
     PROPERTIES
-    LINKER_LANGUAGE
-    CXX
+    LINKER_LANGUAGE CXX
+    FOLDER "NetLib"
 )
+
+#ImGuiWindow
+add_subdirectory(imguiWindow)
