@@ -1,5 +1,4 @@
 #pragma once
-#include <ncurses.h>
 #include <fstream>
 #include <math.h>
 #include <regex>

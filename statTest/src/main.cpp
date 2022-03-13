@@ -1,5 +1,7 @@
 #include "main.h"
 
+//TODO remove selfmade Asio cmake config
+
 int main()
 {
     Stats stats;

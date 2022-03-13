@@ -24,11 +24,12 @@ target_link_libraries(
     piStatReciever
     PUBLIC
     Networking
-    ncurses
+    ImGUIWindow_Lib
 )
 
 target_include_directories(
     piStatReciever
     PUBLIC
     "${Networking_DIR}/"
+    "${vendorPath}/imguiWindow/Lib/src/"
 )

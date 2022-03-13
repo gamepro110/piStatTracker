@@ -23,7 +23,6 @@ set_target_properties(
 target_link_libraries(
     Networking
     PUBLIC
-    Asio
     Threads::Threads
 )
 
