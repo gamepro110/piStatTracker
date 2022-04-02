@@ -86,7 +86,7 @@ template<typename ... Args>
 void VisualizationLogic(Args... args) {
     ImGUIWindow::ArgUnwrapper<Args...> wrapper(args...);
 
-    std::vector<ConnectionPair>* con = wrapper.Get<std::vector<ConnectionPair>*, 0> ();
+    std::vector<ConnectionPair>* con = wrapper.template Get<std::vector<ConnectionPair>*, 0> ();
 
     ImGui::Begin("connected devices", NULL);
     {
@@ -182,7 +182,7 @@ void TimedEvents(Args... args) {
     using namespace std::chrono_literals;
 
     ImGUIWindow::ArgUnwrapper<Args...> wrapper(args...);
-    ImGUIWindow::CallbackArg<>* cb = wrapper.Get<ImGUIWindow::CallbackArg<>*, 0>();
+    ImGUIWindow::CallbackArg<>* cb = wrapper.template Get<ImGUIWindow::CallbackArg<>*, 0>();
 
     static bool canReset = true;
     static bool resetTimer = false;

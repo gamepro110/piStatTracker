@@ -2,11 +2,11 @@
 
 int main() {
     bool run = true;
-    std::vector<ImFont> fonts;
+    std::vector<ImGUIWindow::fontWraper> fonts;
     ImGUIWindow::ImGuiWindow window{ "Stat monitor" };
     std::vector<ConnectionPair> connections;
 
-    {
+    { //TODO replace with yaml file
         connections.emplace_back("localhost", 5999);
     }
 
@@ -21,10 +21,6 @@ int main() {
         return -1;
     }
 
-    // log window
-    // connections window
-    // avg stat window
-    
     ImGUIWindow::CallbackArg<bool*, std::vector<ConnectionPair>*> mainLogicCallback{
         &mainLogic,
         &run,
@@ -53,7 +49,7 @@ int main() {
     window.AddSubWindow(&LogWindowCallback);
     window.AddSubWindow(&TimedEventsCallback);
 
-    if (!window.Start()) {
+    if (!window.Start(fonts)) {
         std::cout << "Failed to start Window!\n";
         return -1;
     }
