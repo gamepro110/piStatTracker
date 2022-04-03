@@ -1,7 +1,13 @@
 #pragma once
+
+#include "config.h"
+
 #include "Networking/net.h"
 #include "ImGuiWindow.h"
 #include "Callbacks.h"
+
+#define YAML_CPP_STATIC_DEFINE
+#include "yaml-cpp/yaml.h"
 
 #include <iostream>
 #include <string>
@@ -108,7 +114,8 @@ void LogWindow() {
     {
         ImGui::Text(std::string("log size: " + std::to_string(logs.size()) + " ##").c_str());
         
-        if (ImGui::BeginChild("")) {
+        if (ImGui::BeginChild("log-win")) {
+		
             for (const auto& log : logs) {
                 static ImVec4 col;
                 switch (log.lvl)

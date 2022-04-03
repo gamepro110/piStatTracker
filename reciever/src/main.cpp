@@ -1,6 +1,8 @@
 #include "main.h"
 
 int main() {
+    Config conf("config.yaml");
+
     bool run = true;
     std::vector<ImGUIWindow::fontWraper> fonts;
     ImGUIWindow::ImGuiWindow window{ "Stat monitor" };
@@ -47,7 +49,7 @@ int main() {
     window.AddSubWindow(&mainLogicCallback);
     window.AddSubWindow(&VisualizationLogicCallback);
     window.AddSubWindow(&LogWindowCallback);
-    window.AddSubWindow(&TimedEventsCallback);
+    //window.AddSubWindow(&TimedEventsCallback);
 
     if (!window.Start(fonts)) {
         std::cout << "Failed to start Window!\n";

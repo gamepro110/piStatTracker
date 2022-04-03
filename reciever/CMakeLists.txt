@@ -25,6 +25,7 @@ target_link_libraries(
     PUBLIC
     Networking
     ImGUIWindow_Lib
+    yaml-cpp
 )
 
 target_include_directories(
@@ -32,4 +33,5 @@ target_include_directories(
     PUBLIC
     "${Networking_DIR}/"
     "${vendorPath}/imguiWindow/Lib/src/"
+    "${vendorPath}/yaml-cpp/"
 )

@@ -22,3 +22,7 @@ set_target_properties(
 
 #ImGuiWindow
 add_subdirectory(imguiWindow)
+
+#yaml-cpp
+add_subdirectory(yaml-cpp)
+

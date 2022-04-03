@@ -4,3 +4,6 @@
 [submodule "vendor/imguiWindow"]
 	path = vendor/imguiWindow
 	url = git@github.com:gamepro110/imgui_window_test.git
+[submodule "vendor/yaml-cpp"]
+	path = vendor/yaml-cpp
+	url = git@github.com:jbeder/yaml-cpp.git
