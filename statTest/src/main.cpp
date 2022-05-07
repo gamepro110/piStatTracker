@@ -1,31 +1,45 @@
-#include "main.h"
+#include "stats/stat.h"
+
+#include <fstream>
+#include <math.h>
+#include <regex>
+#include <string>
+#include <thread>
+#include <iostream>
 
 //TODO remove selfmade Asio cmake config
 
-int main()
-{
-    Stats stats;
-    float temp = stats.GetCpuTemp();
-    auto freqs = stats.GetFreqs();
-    float minfreq = freqs.min;
-    float maxfreq = freqs.max;
-    float curfreq = freqs.cur;
-    RamStats mem = stats.GetRamInfo();
-    int totalMem = mem.total;
-    int freeMem = mem.free;
-    int availableMem = mem.available;
-    float val = ((totalMem - freeMem) / (float)totalMem);
+int main() {
+    int tc = -1;
+    float avg1 = -1;
+    float avg5 = -1;
+    float avg15 = -1;
+    float ct = -1;
 
-    // TODO use line below to get disk data
-    // "df -h | grep '/dev/root'"
     // TODO add get ram info to stats
+    if (!Stats::StatInfo::GetCpuStats(tc, avg1, avg5, avg15, ct)) {
+        std::cout << "failed to read cpu stats\n";
+    }
+    else {
+        std::cout << "tip: -1 == error.\n\n";
+        std::cout << "threadCount: " << tc << "\n";
+        std::cout << "average 1 min: " << avg1 << "\n";
+        std::cout << "average 5 min: " << avg5 << "\n";
+        std::cout << "average 15 min: " << avg15 << "\n";
+        std::cout << "cpu temp C0: " << ct << " c" << "\n";
+    }
 
-    std::cout << "tip: -1 == error.\n";
-    std::cout << "temp: " << temp << "\n";
-    std::cout << "freqs (min/max/cur): (" << minfreq << "/" << maxfreq << "/" << curfreq << ")\n";
-    std::cout << "num cpu cores: " << stats.GetProcessorCount() << "\n";
-    std::cout << "mem (total/free/available): (" << totalMem << "/" << freeMem << "/" << availableMem << ") MBs\n";
-    std::cout << "mem use%: " << std::roundf(val * 100) / 100 << "%\n";
+    int memTotal = -1;
+    int memAvailable = -1;
+
+    if (!Stats::StatInfo::GetMemoryStats(memTotal, memAvailable)) {
+        std::cout << "failed to read ram stats\n";
+    }
+    else {
+        std::cout << "total ram: " << memTotal << "\n";
+        std::cout << "used ram: " << memAvailable << "\n";
+        printf("free ram: %.3f%%\n", (( float )memAvailable / memTotal) * 100);
+    }
 
     return 0;
 }

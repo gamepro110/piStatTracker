@@ -26,3 +26,11 @@ add_subdirectory(imguiWindow)
 #yaml-cpp
 add_subdirectory(yaml-cpp)
 
+set_target_properties(
+    yaml-cpp
+    yaml-cpp-parse
+    yaml-cpp-read
+    yaml-cpp-sandbox
+    PROPERTIES
+    FOLDER "YAML-CPP"
+)

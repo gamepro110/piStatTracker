@@ -1,15 +1,16 @@
 # statTest config
+
 file(
-	GLOB
-	STATTEST_SRC
-	"src/*.cpp"
-	"src/*.h"
+  GLOB_RECURSE
+  STATTEST_SRC
+  "src/*.cpp"
+  "src/*.h"
 )
 
 # Rework this into a cleaned up library
 add_executable(
-	statTest
-	"${STATTEST_SRC}"
+  statTest
+  "${STATTEST_SRC}"
 )
 
 set_target_properties(
