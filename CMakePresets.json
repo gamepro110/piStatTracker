@@ -1,39 +1,123 @@
 ﻿{
-  "version": 2,
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 16
+  },
   "configurePresets": [
     {
-      "name": "linux-debug",
-      "displayName": "Linux Debug",
-      "description": "Windows WSL2 or remote Linux system.",
+      "name": "linux-base",
+      "description": "WSL or remote Linux system.",
+      "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Linux"
       },
       "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "Linux" ]
-        },
         "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
           "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}"
         }
       }
     },
     {
-      "name": "linux-release",
-      "displayName": "Linux Release",
-      "description": "Windows WSL2 or remote Linux system.",
+      "name": "linux-x64-debug",
+      "displayName": "x64 Debug",
+      "description": "linux (64-bit) Visual Studio environment. (Debug)",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-x64-release",
+      "displayName": "x64 Release",
+      "description": "linux (64-bit) Visual Studio environment. (RelWithDebInfo)",
+      "inherits": "linux-x64-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "linux-x64-dist",
+      "displayName": "x64 Dist",
+      "description": "linux (64-bit) Visual Studio environment. (MinSizeRel)",
+      "inherits": "linux-x64-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    },
+    {
+      "name": "linux-x86-debug",
+      "displayName": "x86 Debug",
+      "description": "Windows (32-bit) Visual Studio environment. (Debug)",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x86",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "linux-x86-release",
+      "displayName": "x86 Release",
+      "description": "linux (32-bit) Visual Studio environment. (RelWithDebInfo)",
+      "inherits": "linux-x86-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "linux-x86-dist",
+      "displayName": "x86 Dist",
+      "description": "linux (32-bit) Visual Studio environment. (MinSizeRel)",
+      "inherits": "linux-x86-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    },
+    {
+      "name": "linux-x64-debug-clang",
+      "displayName": "clang x64 Debug",
+      "description": "linux (64-bit) Visual Studio environment. (Debug)",
+      "inherits": "linux-base",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_C_COMPILER": "/usr/bin/clang",
+        "CMAKE_CXX_COMPILER": "/usr/bin/clang++",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "macos-base",
+      "description": "Target a remote macOS system.",
+      "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+        "CMAKE_BUILD_TYPE": "Debug"
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
       },
       "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "Linux" ]
-        },
         "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
           "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}"
         }
@@ -42,79 +126,316 @@
     {
       "name": "macos-debug",
       "displayName": "macOS Debug",
-      "description": "remote macOS with Ninja (debug)",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "macOS" ]
-        },
-        "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
-          "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}"
-        }
-      }
+      "inherits": "macos-base"
     },
     {
       "name": "macos-release",
       "displayName": "macOS Release",
-      "description": "remote macOS with Ninja (release)",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "inherits": "macos-base",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "macOS" ]
-        },
-        "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
-          "sourceDir": "$env{HOME}/.vs/$ms{projectDirName}"
-        }
+        "CMAKE_BUILD_TYPE": "Release"
       }
     },
     {
-      "name": "windows-debug",
-      "displayName": "Windows x64 Debug",
-      "description": "Windows x64 debug in VS 2022",
+      "name": "macos-dist",
+      "displayName": "macOS Dist",
+      "inherits": "macos-base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    },
+    {
+      "name": "windows-base",
+      "description": "Target Windows with the Visual Studio development environment.",
+      "hidden": true,
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "installDir": "${sourceDir}/out/install/${presetName}",
+      "cacheVariables": {
+        
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-x64-debug",
+      "displayName": "x64 Debug",
+      "description": "Windows (64-bit) Visual Studio environment. (Debug)",
+      "inherits": "windows-base",
       "architecture": {
         "value": "x64",
         "strategy": "external"
       },
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "Windows" ]
-        }
+        "CMAKE_BUILD_TYPE": "Debug"
       }
     },
     {
-      "name": "windows-release",
-      "displayName": "Windows x64 Release",
-      "description": "Windows x64 release in VS 2022",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "name": "windows-x64-release",
+      "displayName": "x64 Release",
+      "description": "Windows (64-bit) Visual Studio environment. (RelWithDebInfo)",
+      "inherits": "windows-x64-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "windows-x64-dist",
+      "displayName": "x64 Dist",
+      "description": "Windows (64-bit) Visual Studio environment. (MinSizeRel)",
+      "inherits": "windows-x64-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    },
+    {
+      "name": "windows-x86-debug",
+      "displayName": "x86 Debug",
+      "description": "Windows (32-bit) Visual Studio environment. (Debug)",
+      "inherits": "windows-base",
       "architecture": {
-        "value": "x64",
+        "value": "x86",
         "strategy": "external"
       },
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "windows-x86-release",
+      "displayName": "x86 Release",
+      "description": "Windows (32-bit) Visual Studio environment. (RelWithDebInfo)",
+      "inherits": "windows-x86-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "windows-x86-dist",
+      "displayName": "x86 Dist",
+      "description": "Windows (32-bit) Visual Studio environment. (MinSizeRel)",
+      "inherits": "windows-x86-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "MinSizeRel"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "hidden": true,
+      "jobs": 32,
+      "name": "base",
+      "verbose": true
+    },
+    {
+      "configurePreset": "linux-base",
+      "jobs": 4,
+      "hidden": true,
+      "inherits": "base",
+      "name": "linux-base"
+    },
+    {
+      "configurePreset": "linux-x64-debug",
+      "displayName": "linux debug x64",
+      "inheritConfigureEnvironment": true,
+      "inherits": "linux-base",
+      "name": "linux-x64-debug"
+    },
+    {
+      "configurePreset": "linux-x64-release",
+      "displayName": "lin release x64",
+      "inheritConfigureEnvironment": true,
+      "inherits": "linux-base",
+      "name": "linux-x64-release"
+    },
+    {
+      "configurePreset": "linux-x64-dist",
+      "displayName": "lin dist x64",
+      "inheritConfigureEnvironment": true,
+      "inherits": "linux-base",
+      "name": "linux-x64-dist"
+    },
+    {
+      "configurePreset": "macos-base",
+      "hidden": true,
+      "inherits": "base",
+      "name": "macos-base"
+    },
+    {
+      "configurePreset": "macos-debug",
+      "displayName": "mac debug x64",
+      "inheritConfigureEnvironment": true,
+      "inherits": "macos-base",
+      "name": "macos-debug"
+    },
+    {
+      "configurePreset": "macos-release",
+      "displayName": "mac release x64",
+      "inheritConfigureEnvironment": true,
+      "inherits": "macos-base",
+      "name": "macos-release"
+    },
+    {
+      "configurePreset": "windows-base",
+      "hidden": true,
+      "inherits": "base",
+      "name": "windows-base"
+    },
+    {
+      "configurePreset": "windows-x64-debug",
+      "displayName": "win debug x64",
+      "inheritConfigureEnvironment": true,
+      "inherits": "windows-base",
+      "name": "windows-x64-debug"
+    },
+    {
+      "configurePreset": "windows-x64-release",
+      "displayName": "win release x64",
+      "inheritConfigureEnvironment": true,
+      "inherits": "windows-base",
+      "name": "windows-x64-release"
+    },
+    {
+      "configurePreset": "windows-x64-dist",
+      "displayName": "win dist x64",
+      "inheritConfigureEnvironment": true,
+      "inherits": "windows-base",
+      "name": "windows-x64-dist"
+    },
+    {
+      "configurePreset": "windows-x86-debug",
+      "displayName": "win debug x86",
+      "inheritConfigureEnvironment": true,
+      "inherits": "windows-base",
+      "name": "windows-x86-debug"
+    },
+    {
+      "configurePreset": "windows-x86-release",
+      "displayName": "win release x86",
+      "inheritConfigureEnvironment": true,
+      "inherits": "windows-base",
+      "name": "windows-x86-release"
+    },
+    {
+      "configurePreset": "windows-x86-dist",
+      "displayName": "win dist x86",
+      "inheritConfigureEnvironment": true,
+      "inherits": "windows-base",
+      "name": "windows-x86-dist"
+    }
+  ],
+  "testPresets": [
+    {
+      "hidden": true,
+      "name": "base",
+      "inheritConfigureEnvironment": true,
+      "output": {
+        "verbosity": "verbose",
+        "outputOnFailure": true,
+        "shortProgress": true
       },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "Windows" ]
-        }
+      "execution": {
+        "stopOnFailure": false,
+        "noTestsAction": "ignore"
+      }
+    },
+    {
+      "name": "linux-debug-test",
+      "inherits": "base",
+      "configurePreset": "linux-x64-debug",
+      "output": {
+        "debug": true
+      }
+    },
+    {
+      "name": "linux-release-test",
+      "inherits": "base",
+      "configurePreset": "linux-x64-release",
+      "output": {
+        "debug": false
+      }
+    },
+    {
+      "name": "linux-dist-test",
+      "inherits": "base",
+      "configurePreset": "linux-x64-dist",
+      "output": {
+        "debug": false
+      }
+    },
+    {
+      "name": "macos-debug-test",
+      "inherits": "base",
+      "configurePreset": "macos-debug",
+      "output": {
+        "debug": true
+      }
+    },
+    {
+      "name": "macos-release-test",
+      "inherits": "base",
+      "configurePreset": "macos-release",
+      "output": {
+        "debug": false
+      }
+    },
+    {
+      "name": "macos-dist-test",
+      "inherits": "base",
+      "configurePreset": "macos-dist",
+      "output": {
+        "debug": false
+      }
+    },
+    {
+      "name": "windows-debug-x64-test",
+      "inherits": "base",
+      "configurePreset": "windows-x64-debug",
+      "output": {
+        "debug": true
+      }
+    },
+    {
+      "name": "windows-release-x64-test",
+      "inherits": "base",
+      "configurePreset": "windows-x64-release",
+      "output": {
+        "debug": false
+      }
+    },
+    {
+      "name": "windows-dist-x64-test",
+      "inherits": "base",
+      "configurePreset": "windows-x64-dist",
+      "output": {
+        "debug": false
+      }
+    },
+    {
+      "name": "windows-debug-x86-test",
+      "inherits": "base",
+      "configurePreset": "windows-x86-debug",
+      "output": {
+        "debug": true
+      }
+    },
+    {
+      "name": "windows-release-x86-test",
+      "inherits": "base",
+      "configurePreset": "windows-x86-release",
+      "output": {
+        "debug": false
+      }
+    },
+    {
+      "name": "windows-dist-x86-test",
+      "inherits": "base",
+      "configurePreset": "windows-x86-dist",
+      "output": {
+        "debug": false
       }
     }
   ]
