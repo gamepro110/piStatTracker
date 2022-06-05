@@ -2,39 +2,33 @@
 
 #include "net_common.h"
 
-namespace net
-{
+namespace net {
 	// packet header is sent at start of all packets. the template allows
 	// to use "enum class" to ensure that the packet is valid at compile time
 	template<typename T>
-	struct message_header
-	{
+	struct message_header {
 		T id;
 		uint32_t size = 0;
 	};
 
 	template<typename T>
-	struct message
-	{
+	struct message {
 		message_header<T> header{};
 		std::vector<uint8_t> body;
 
-		size_t size() const
-		{
+		size_t size() const {
 			return body.size();
 		}
 
 		// override for std::cout compatibility - produces friendly description of packet
-		friend std::ostream& operator << (std::ostream& os, const message<T> msg)
-		{
+		friend std::ostream& operator << (std::ostream& os, const message<T> msg) {
 			os << "ID:" << int(msg.header.id) << " Size:" << msg.header.size;
 			return os;
 		}
 
 		// pushes any POD-type into the buffer
 		template<typename DataType>
-		friend message<T>& operator << (message<T>& msg, const DataType& data)
-		{
+		friend message<T>& operator << (message<T>& msg, const DataType& data) {
 			// check that the type of data being pushed is trivially copyable
 			static_assert(std::is_standard_layout<DataType>::value, "Data type is not a default type");
 
@@ -56,8 +50,7 @@ namespace net
 
 		// pulls any POD-type out of the message
 		template<typename DataType>
-		friend message<T>& operator >> (message<T>& msg, DataType& data)
-		{
+		friend message<T>& operator >> (message<T>& msg, DataType& data) {
 			// check that the type of data being pushed is trivially copyable
 			static_assert(std::is_standard_layout<DataType>::value, "Data type is not a default type");
 
@@ -83,13 +76,11 @@ namespace net
 	class connection;
 
 	template<typename T>
-	struct owned_message
-	{
+	struct owned_message {
 		std::shared_ptr<connection<T>> remote = nullptr;
 		message<T> msg{};
 
-		friend std::ostream& operator << (std::ostream& os, const owned_message<T>& omsg)
-		{
+		friend std::ostream& operator << (std::ostream& os, const owned_message<T>& omsg) {
 			os << omsg.msg;
 			return os;
 		}

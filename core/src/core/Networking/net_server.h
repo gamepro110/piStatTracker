@@ -5,46 +5,38 @@
 #include "net_message.h"
 #include "net_connection.h"
 
-namespace net
-{
+namespace net {
 	template<typename T>
-	class server_interface
-	{
+	class server_interface {
 	public:
 		// creating a server that listens to the specified port
 		server_interface(uint16_t port) :
-			m_asioAcceptor(m_asioContext, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port))
-		{
+			m_asioAcceptor(m_asioContext, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)) {
 		}
 
-		virtual ~server_interface()
-		{
+		virtual ~server_interface() {
 			// cleanup
 			Stop();
 		}
 
 		// starts the server
-		bool Start()
-		{
-			try
-			{
+		bool Start() {
+			try {
 				WaitForClientConnection();
 				m_threadContext = std::thread([this]() { m_asioContext.run(); });
 			}
-			catch (std::exception& e)
-			{
+			catch (std::exception& e) {
 				// something prohibited the server from listening
-				std::cerr << "[SERVER] EXCEPTION: " << e.what() << std::endl;
+                STATS_Core_ERROR("[SERVER] EXCEPTION: {}", e.what());
 				return false;
 			}
 
-			std::cout << "[SERVER] started!\n";
+			STATS_Core_INFO("[SERVER] started!");
 			return true;
 		}
 
 		// stops the server
-		void Stop()
-		{
+		void Stop() {
 			// request the context to close
 			m_asioContext.stop();
 
@@ -52,42 +44,36 @@ namespace net
 			if (m_threadContext.joinable())	m_threadContext.join();
 
 			// inform someone, anybody, if they care..
-			std::cout << "[SERVER] Stopped!" << std::endl;
+            STATS_Core_INFO("[SERVER] Stopped!");
 		}
 
 		// async - instuct asio to wait for connection
-		void WaitForClientConnection()
-		{
+		void WaitForClientConnection() {
 			m_asioAcceptor.async_accept(
-				[this](std::error_code ec, asio::ip::tcp::socket socket)
-				{
-					if (!ec)
-					{
-						std::cout << "[SERVER] New Connection: " << socket.remote_endpoint() << std::endl;
+				[this](std::error_code ec, asio::ip::tcp::socket socket) {
+					if (!ec) {
+						STATS_Core_INFO("[SERVER] New Connection");
 
 						std::shared_ptr<connection<T>> newconn =
 							std::make_shared<connection<T>>(connection<T>::owner::Server,
 								m_asioContext, std::move(socket), m_qMessagesIn);
 
 						// give the user server a chance to deny connection
-						if (OnClientConnect(newconn))
-						{
+						if (OnClientConnect(newconn)) {
 							// connection allowed, so add to container of new connections
 							m_deqConnections.push_back(std::move(newconn));
 
 							m_deqConnections.back()->ConnectToClient(nIDCounter++);
 
-							std::cout << "[" << m_deqConnections.back()->GetID() << "] Connection Approved" << std::endl;
+                            STATS_Core_INFO("[{}] Connection Approved", m_deqConnections.back()->GetID());
 						}
-						else
-						{
-							std::cout << "[-----] Connection Denied" << std::endl;
+						else {
+							STATS_Core_WARN("[-----] Connection Denied");
 						}
 					}
-					else
-					{
+					else {
 						// error has occurred during acceptance
-						std::cout << "[SERVER] New Connection Error: " << ec.message() << "\n";
+                        STATS_Core_WARN("[SERVER] New Connection Error: {}", ec.message());
 					}
 
 					WaitForClientConnection();
@@ -97,12 +83,10 @@ namespace net
 
 		void MessageClient(std::shared_ptr<connection<T>> client, const message<T>& msg)
 		{
-			if (client && client->IsConnected())
-			{
+			if (client && client->IsConnected()) {
 				client->SendMsg(msg);
 			}
-			else
-			{
+			else {
 				OnClientDisconnect(client);
 				client.reset();
 
@@ -110,23 +94,18 @@ namespace net
 			}
 		}
 
-		void MessageAllClients(const message<T>& msg, std::shared_ptr<connection<T>> pIgnoreClient = nullptr)
-		{
+		void MessageAllClients(const message<T>& msg, std::shared_ptr<connection<T>> pIgnoreClient = nullptr) {
 			bool bInvalidClientExists = false;
 
-			for (auto& client : m_deqConnections)
-			{
+			for (auto& client : m_deqConnections) {
 				// check client is connected...
-				if (client && client->IsConnected())
-				{
+				if (client && client->IsConnected()) {
 					// ..it is!
-					if (client != pIgnoreClient)
-					{
+					if (client != pIgnoreClient) {
 						client->SendMsg(msg);
 					}
 				}
-				else
-				{
+				else {
 					// the client couldnt be contacted, so assume it has
 					// disconnected.
 					OnClientDisconnect(client);
@@ -136,19 +115,18 @@ namespace net
 				}
 			}
 
-			if (bInvalidClientExists)
-			{
+			if (bInvalidClientExists) {
 				m_deqConnections.erase(std::remove(m_deqConnections.begin(), m_deqConnections.end(), nullptr), m_deqConnections.end());
 			}
 		}
 
-		void Update(uint64_t nMaxMessages = -1, bool bwait = false)
-		{
-			if (bwait) m_qMessagesIn.wait();
+		void Update(uint64_t nMaxMessages = -1, bool bwait = false) {
+            if (bwait) {
+                m_qMessagesIn.wait();
+            }
 
 			uint64_t nMessageCount = 0;
-			while (nMessageCount < nMaxMessages && !m_qMessagesIn.empty())
-			{
+			while (nMessageCount < nMaxMessages && !m_qMessagesIn.empty()) {
 				// grab the front message
 				auto msg = m_qMessagesIn.pop_front();
 
@@ -161,20 +139,15 @@ namespace net
 
 	protected:
 		// called when a client connects, you can veto the connection by returning false
-		virtual bool OnClientConnect(std::shared_ptr<connection<T>> client)
-		{
+		virtual bool OnClientConnect(std::shared_ptr<connection<T>> client) {
 			return false;
 		}
 
 		// called when a client appears to have disconnected
-		virtual void OnClientDisconnect(std::shared_ptr<connection<T>> client)
-		{
-		}
+        virtual void OnClientDisconnect(std::shared_ptr<connection<T>> client) { }
 
 		// when a message arrives
-		virtual void OnMessage(std::shared_ptr<connection<T>> client, message<T>& msg)
-		{
-		}
+		virtual void OnMessage(std::shared_ptr<connection<T>> client, message<T>& msg) { }
 
 	protected:
 		// thread safe queue for incomming message packets

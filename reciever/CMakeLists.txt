@@ -1,4 +1,14 @@
 # reciever app config
+
+set(
+  ImGuiStyle
+  "Dark"
+  CACHE
+  STRING
+  ""
+  FORCE
+)
+
 file(
     GLOB
     RECIEVER_SRC
@@ -23,15 +33,13 @@ set_target_properties(
 target_link_libraries(
     piStatReciever
     PUBLIC
-    Networking
+    CoreLib
     ImGUIWindow_Lib
-    yaml-cpp
 )
 
 target_include_directories(
     piStatReciever
     PUBLIC
-    "${Networking_DIR}/"
+    "${PROJECT_SOURCE_DIR}/core/src/"
     "${vendorPath}/imguiWindow/Lib/src/"
-    "${vendorPath}/yaml-cpp/"
 )

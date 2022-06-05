@@ -3,7 +3,8 @@
 #include <iostream>
 
 int main() {
-    StatSender sender = StatSender(5999);
+    Config conf("config.yaml");
+    StatSender sender = StatSender(conf.Port());
 
     if (sender.Start()) {
         while (1) {
@@ -11,7 +12,7 @@ int main() {
         }
     }
     else {
-        std::cout << "failed to start server\n";
+        STATS_Core_INFO("failed to start server");
     }
     
     std::cin.get();

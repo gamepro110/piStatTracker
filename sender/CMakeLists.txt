@@ -1,6 +1,6 @@
 # sender app config
 file(
-    GLOB
+ GLOB
     SENDER_SRC
     "src/*.cpp"
     "src/*.h"
@@ -23,11 +23,11 @@ set_target_properties(
 target_link_libraries(
     piStatSender
     PUBLIC
-    Networking
+    CoreLib
 )
 
 target_include_directories(
     piStatSender
     PUBLIC
-    "${Networking_DIR}/"
+    "${PROJECT_SOURCE_DIR}/core/src/"
 )
