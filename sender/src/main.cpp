@@ -4,6 +4,8 @@
 
 int main() {
     Config conf("config.yaml");
+    STATS_Core_INFO("[config] port: {}", conf.Port());
+
     StatSender sender = StatSender(conf.Port());
 
     if (sender.Start()) {

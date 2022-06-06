@@ -1,6 +1,6 @@
 # sender app config
 file(
- GLOB
+ GLOB_RECURSE
     SENDER_SRC
     "src/*.cpp"
     "src/*.h"
@@ -23,6 +23,7 @@ set_target_properties(
 target_link_libraries(
     piStatSender
     PUBLIC
+    Threads::Threads
     CoreLib
 )
 

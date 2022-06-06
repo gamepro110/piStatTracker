@@ -166,7 +166,7 @@ void mainLogic(Args ... args) {
                     break;
 
                 case net::MessageType::ServerSendStats:
-                    STATS_INFO("[Sender] SendStats");
+                    STATS_INFO("[Sender] MessageType::ServerSendStats:");
                     break;
                 
                 default:

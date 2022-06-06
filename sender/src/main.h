@@ -3,10 +3,10 @@
 #include "core/base.h"
 #include "core/log.h"
 #include "core/config.h"
+#include "stats/stat.h"
 
 #include "core/Networking/net_common.h"
 
-#include <thread>
 
 class StatSender : public net::server_interface<net::MessageType> {
 public:
@@ -41,7 +41,22 @@ protected:
                 }
             case net::MessageType::ServerSendStats:
                 {
-                    message << std::thread::hardware_concurrency();
+                    int threadCount = -1;
+                    float avg1 = -1;
+                    float avg5 = -1;
+                    float avg15 = -1;
+                    float rawCpuTemp = -1;
+                    int totalMem = -1;
+                    int freeMem = -1;
+                    
+                    if (!Stats::StatInfo::GetCpuStats(threadCount, avg1, avg5, avg15, rawCpuTemp)){
+                        STATS_Core_WARN("Failed to get all CPU stats");
+                    }
+                    if (!Stats::StatInfo::GetMemoryStats(totalMem, freeMem)){
+                        STATS_Core_WARN("Failed to get all Memory stats");
+                    }
+
+                    msg << freeMem << totalMem << rawCpuTemp << avg15 << avg5 << avg1 << threadCount;
 
                     client->SendMsg(message);
                     break;
