@@ -9,7 +9,6 @@ namespace net {
     public:
         client_interface() : m_socket(m_context) {
             // initialize the socket with the io context, so it can do stuff
-            StatsCore::Log::Init();
         }
 
         virtual ~client_interface() {
@@ -22,7 +21,7 @@ namespace net {
         bool Connect(const std::string& host, const uint16_t port) {
             try {
                 // Resolve hostname/ip-address into tangiable physical address
-                asio::ip::tcp::resolver _resolver(m_context);
+                asio::ip::tcp::resolver _resolver(m_context);                   //TODO find out why the context is lost upon entering
                 asio::ip::tcp::resolver::results_type _endpoints = _resolver.resolve(host, std::to_string(port));
 
                 // create connection

@@ -3,6 +3,7 @@
 #include <iostream>
 
 int main() {
+    StatsCore::Log::Init();
     Config conf("config.yaml");
     STATS_Core_INFO("[config] port: {}", conf.Port());
 

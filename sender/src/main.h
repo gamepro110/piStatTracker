@@ -10,7 +10,7 @@
 
 class StatSender : public net::server_interface<net::MessageType> {
 public:
-    StatSender(uint16_t port) : net::server_interface<net::MessageType>(port) { StatsCore::Log::Init(); }
+    StatSender(uint16_t port) : net::server_interface<net::MessageType>(port) { }
 
 protected:
     virtual bool OnClientConnect(std::shared_ptr<net::connection<net::MessageType>> client) {

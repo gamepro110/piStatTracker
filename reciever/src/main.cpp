@@ -1,15 +1,16 @@
 #include "main.h"
 
 int main() {
+    StatsCore::Log::Init();
     Config conf("config.yaml");
 
     bool run = true;
     std::vector<ImGUIWindow::fontWraper> fonts;
     ImGUIWindow::ImGuiWindow window{ "Stat monitor" };
     std::vector<ConnectionPair> connections;
-
+    int port = conf.Port();
     for (const auto& item : conf.Cons()) {
-        connections.emplace_back(item, conf.Port());
+        connections.emplace_back(ConnectionPair(item, port));
     }
 
     for (auto& conn : connections) {

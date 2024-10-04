@@ -90,7 +90,7 @@ namespace net {
 						}
 					}
 					else {
-                        STATS_Core_ERROR("[{}] Write Header Fail.", id);
+						STATS_Core_ERROR("[{}] Write Header Fail.", id);
 						m_socket.close();
 					}
 				}
